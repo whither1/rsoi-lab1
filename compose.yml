@@ -1,0 +1,54 @@
+﻿services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1g 
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d testdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lab-network
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2g 
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      JAVA_OPTS: >
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=75.0
+        -XX:+UseG1GC
+        -Xmx512m
+        -Xms256m
+        -Djava.security.egd=file:/dev/./urandom
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      retries: 5
+    ports:
+      - "8080:8080"
+    networks:
+      - lab-network
+
+networks:
+  lab-network:
+    driver: bridge
