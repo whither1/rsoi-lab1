@@ -15,11 +15,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build
+      - name: Setup java
         uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '25'
+
+      - name: Build
         run: mvn package
 
       - name: Unit tests
