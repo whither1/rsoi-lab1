@@ -40,6 +40,9 @@
         -Xmx512m
         -Xms256m
         -Djava.security.egd=file:/dev/./urandom
+      DB_URL: jdbc:postgresql://postgres:5432/testdb
+      DB_USER: postgres
+      DB_PASS: postgres
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 5s
