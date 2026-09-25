@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -42,11 +43,32 @@ public class PersonService {
         return toResponse(saved);
     }
 
-    public PersonResponse update(Integer id, PersonRequest req) {
+//    public PersonResponse update(Integer id, PersonRequest req) {
+//        PersonEntity entity = repository.findById(id)
+//                .orElseThrow(() -> new PersonNotFoundException(id));
+//        applyRequest(entity, req);   // PATCH: перезаписываем все поля, что пришли
+//        return toResponse(entity);   // save() не обязателен — @Transactional сделает flush
+//    }
+
+    public PersonResponse update(Integer id, Map<String, Object> patch) {
         PersonEntity entity = repository.findById(id)
                 .orElseThrow(() -> new PersonNotFoundException(id));
-        applyRequest(entity, req);   // PATCH: перезаписываем все поля, что пришли
-        return toResponse(entity);   // save() не обязателен — @Transactional сделает flush
+
+        if (patch.containsKey("name")) {
+            entity.setName((String) patch.get("name"));
+        }
+        if (patch.containsKey("age")) {
+            Object raw = patch.get("age");
+            entity.setAge(raw == null ? null : ((Number) raw).intValue());
+        }
+        if (patch.containsKey("address")) {
+            entity.setAddress((String) patch.get("address"));
+        }
+        if (patch.containsKey("work")) {
+            entity.setWork((String) patch.get("work"));
+        }
+
+        return toResponse(entity);   // @Transactional + dirty checking сохранит изменения
     }
 
     public void delete(Integer id) {

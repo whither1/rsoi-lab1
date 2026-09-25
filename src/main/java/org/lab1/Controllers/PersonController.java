@@ -11,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/persons")
@@ -46,8 +47,9 @@ public class PersonController {
 
     @PatchMapping("/{id}")
     public PersonResponse patch(@PathVariable Integer id,
-                                @Valid @RequestBody PersonRequest req) {
-        return service.update(id, req);
+                                @RequestBody Map<String, Object> patch) {
+//                                        PersonRequest req) {
+        return service.update(id, patch);
     }
 
     @DeleteMapping("/{id}")
